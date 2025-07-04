@@ -1,13 +1,13 @@
 import React, { useEffect, useState } from "react";
 import { useNavigate, useParams } from "react-router-dom";
 import { toast } from "react-toastify";
+import ApperIcon from "@/components/ApperIcon";
 import PropertyForm from "@/components/organisms/PropertyForm";
-import Loading from "@/components/ui/Loading";
 import Error from "@/components/ui/Error";
+import Loading from "@/components/ui/Loading";
 import PropertyService from "@/services/api/PropertyService";
-import ApperIcon from "@/components/ui/ApperIcon";
 
-const PropertyEditor = () => {
+function PropertyEditor() {
   const { id } = useParams()
   const navigate = useNavigate()
   const [property, setProperty] = useState(null)
