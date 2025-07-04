@@ -1,17 +1,12 @@
-import { motion } from 'framer-motion'
-import { Link } from 'react-router-dom'
-import ApperIcon from '@/components/ApperIcon'
-import Badge from '@/components/atoms/Badge'
-import Button from '@/components/atoms/Button'
+import { motion } from "framer-motion";
+import { Link } from "react-router-dom";
+import React from "react";
+import { formatPrice } from "@/utils/formatters";
+import ApperIcon from "@/components/ApperIcon";
+import Badge from "@/components/atoms/Badge";
+import Button from "@/components/atoms/Button";
 
 const PropertyCard = ({ property, onEdit, onDelete, isPublic = false }) => {
-  const formatPrice = (price) => {
-    return new Intl.NumberFormat('en-US', {
-      style: 'currency',
-      currency: 'USD',
-      minimumFractionDigits: 0
-    }).format(price)
-  }
 
   const getStatusColor = (status) => {
     switch (status) {
@@ -19,6 +14,18 @@ const PropertyCard = ({ property, onEdit, onDelete, isPublic = false }) => {
       case 'rented': return 'error'
       case 'pending': return 'warning'
       default: return 'default'
+    }
+  }
+
+  const handleEdit = () => {
+    if (onEdit && typeof onEdit === 'function') {
+      onEdit(property.Id)
+    }
+  }
+
+  const handleDelete = () => {
+    if (onDelete && typeof onDelete === 'function') {
+      onDelete(property.Id)
     }
   }
 
@@ -30,85 +37,84 @@ const PropertyCard = ({ property, onEdit, onDelete, isPublic = false }) => {
     >
       <div className="relative">
         <img
-          src={property.images[0] || '/api/placeholder/400/300'}
-          alt={property.title}
+          src={property?.images?.[0] || '/api/placeholder/400/300'}
+          alt={property?.title || 'Property'}
           className="w-full h-48 object-cover"
         />
         <div className="absolute top-4 left-4">
-          <Badge variant="gradient" className="text-white font-bold">
-            {formatPrice(property.price)}
+<Badge variant="gradient" className="text-white font-bold">
+            {formatPrice(property?.price || 0)}
           </Badge>
         </div>
         <div className="absolute top-4 right-4">
-          <Badge variant={getStatusColor(property.status)}>
-            {property.status}
+          <Badge variant={getStatusColor(property?.status)}>
+            {property?.status || 'unknown'}
           </Badge>
         </div>
       </div>
       
       <div className="p-6">
-        <h3 className="text-xl font-bold text-primary mb-2">{property.title}</h3>
-        <p className="text-gray-600 mb-4 flex items-center">
-          <ApperIcon name="MapPin" className="w-4 h-4 mr-1" />
-          {property.location}
-        </p>
+        <h3 className="text-xl font-bold mb-2">{property?.title || 'No title'}</h3>
+        <p className="text-gray-600 mb-4">{property?.address || 'No address'}</p>
         
-        <div className="flex items-center justify-between text-sm text-gray-500 mb-4">
-          <span className="flex items-center">
-            <ApperIcon name="Bed" className="w-4 h-4 mr-1" />
-            {property.bedrooms} beds
+        <div className="flex items-center gap-4 text-sm text-gray-500 mb-4">
+          <span className="flex items-center gap-1">
+            <ApperIcon name="bed" size={16} />
+            {property?.bedrooms || 0} bed
           </span>
-          <span className="flex items-center">
-            <ApperIcon name="Bath" className="w-4 h-4 mr-1" />
-            {property.bathrooms} baths
+          <span className="flex items-center gap-1">
+            <ApperIcon name="bath" size={16} />
+            {property?.bathrooms || 0} bath
           </span>
-          <span className="flex items-center">
-            <ApperIcon name="Square" className="w-4 h-4 mr-1" />
-            {property.squareFeet} sqft
+          <span className="flex items-center gap-1">
+            <ApperIcon name="square-feet" size={16} />
+            {property?.sqft || 0} sqft
           </span>
         </div>
         
-        <p className="text-gray-700 mb-4 line-clamp-2">{property.description}</p>
-        
-        {!isPublic ? (
-          <div className="flex gap-2">
-            <Button 
-              variant="secondary" 
-              size="small"
-              onClick={() => onEdit(property.Id)}
-              className="flex-1"
-            >
-              <ApperIcon name="Edit" className="w-4 h-4 mr-2" />
-              Edit
-            </Button>
-            <Button 
-              variant="danger" 
-              size="small"
-              onClick={() => onDelete(property.Id)}
-              className="flex-1"
-            >
-              <ApperIcon name="Trash2" className="w-4 h-4 mr-2" />
-              Delete
-            </Button>
-          </div>
-        ) : (
-          <div className="flex gap-2">
+        <div className="flex gap-2">
+          {isPublic ? (
             <Link 
-              to={`/site/property/${property.Id}`}
+              to={`/property/${property?.Id}`}
               className="flex-1"
             >
-              <Button variant="primary" size="small" className="w-full">
+              <Button variant="primary" className="w-full">
                 View Details
               </Button>
             </Link>
-            <Button variant="secondary" size="small">
-              <ApperIcon name="Heart" className="w-4 h-4" />
-            </Button>
-          </div>
-        )}
+          ) : (
+            <>
+              {onEdit && (
+                <Button 
+                  variant="secondary" 
+                  className="flex-1"
+                  onClick={handleEdit}
+                >
+                  <ApperIcon name="edit" size={16} />
+                  Edit
+                </Button>
+              )}
+              {onDelete && (
+                <Button 
+                  variant="danger" 
+                  onClick={handleDelete}
+                >
+                  <ApperIcon name="trash" size={16} />
+                </Button>
+              )}
+            </>
+          )}
+        </div>
       </div>
     </motion.div>
   )
+}
+
+// Default props for defensive programming
+PropertyCard.defaultProps = {
+  onEdit: null,
+  onDelete: null,
+  isPublic: false
 }
 
 export default PropertyCard
